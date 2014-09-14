@@ -90,9 +90,19 @@ Returns a list with (value commodity)."
 
 (defun -commodity (c1 c2)
   "Subtract C2 from C1, ensuring their commodities match."
-  (if (string= (cadr c1) (cadr c2))
-      (list (-(car c1) (car c2)) (cadr c1))
-    (error "Can't subtract different commodities %S from %S" c2 c1)))
+  (cond
+   ((string= (cadr c1) (cadr c2))
+                                        ; the scaling below is to get around inexact
+                                        ; subtraction results where, for example 1.23
+                                        ; - 4.56 = -3.3299999999999996 instead of
+                                        ; -3.33
+    (list (- (car c1) (car c2)) (cadr c1)))
+   ((= (car c1) 0)
+    (list (- (car c2)) (cadr c2)))
+   ((= (car c2) 0)
+    c1)
+   (t
+    (error "Can't subtract different commodities %S from %S" c2 c1))))
 
 (defun +commodity (c1 c2)
   "Add C1 and C2, ensuring their commodities match."
